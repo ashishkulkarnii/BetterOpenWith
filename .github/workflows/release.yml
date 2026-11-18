@@ -32,10 +32,12 @@ jobs:
           "$RUNNER_TEMP/DerivedData/Build/Products/Release/Better Open With.app"
           "BetterOpenWith-${GITHUB_REF_NAME}.zip"
 
-      - name: Publish GitHub release
+      - name: Create release if needed
         env:
           GH_TOKEN: ${{ github.token }}
-        run: >-
-          gh release create "$GITHUB_REF_NAME"
-          "BetterOpenWith-${GITHUB_REF_NAME}.zip"
-          --generate-notes
+        run: gh release view "$GITHUB_REF_NAME" || gh release create "$GITHUB_REF_NAME" --generate-notes
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$GITHUB_REF_NAME" "BetterOpenWith-${GITHUB_REF_NAME}.zip" --clobber
