@@ -483,6 +483,14 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
     }
 
     private func open(file: URL, with application: URL) {
+        if hasQuarantineAttribute(file) {
+            askBeforeOpeningQuarantinedFile(file, with: application)
+        } else {
+            launch(file: file, with: application)
+        }
+    }
+
+    private func launch(file: URL, with application: URL) {
         let configuration = NSWorkspace.OpenConfiguration()
         configuration.activates = true
         NSWorkspace.shared.open([file], withApplicationAt: application, configuration: configuration) { [weak self] _, error in
@@ -491,6 +499,31 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
                 self?.status.stringValue = "Saved, but couldn’t open the file: \(error.localizedDescription)"
             }
         }
+    }
+
+    private func askBeforeOpeningQuarantinedFile(_ file: URL, with application: URL) {
+        let alert = NSAlert()
+        alert.messageText = "Remove download quarantine before opening?"
+        alert.informativeText = "\(file.lastPathComponent) was downloaded from the internet. Removing its quarantine marker may prevent macOS from treating it as damaged. Only continue if you trust the file and its source."
+        alert.alertStyle = .warning
+        let noButton = alert.addButton(withTitle: "No")
+        let yesButton = alert.addButton(withTitle: "Yes, Remove Quarantine")
+        noButton.keyEquivalent = "\r"
+        noButton.bezelColor = .controlColor
+        yesButton.bezelColor = .controlAccentColor
+
+        let handleResponse: (NSApplication.ModalResponse) -> Void = { [weak self] response in
+            guard let self else { return }
+            if response == .alertSecondButtonReturn {
+                if let error = self.removeQuarantine(from: file) {
+                    self.status.stringValue = "Couldn’t remove quarantine: \(error.localizedDescription)"
+                    return
+                }
+            }
+            self.launch(file: file, with: application)
+        }
+        if let window = view.window { alert.beginSheetModal(for: window, completionHandler: handleResponse) }
+        else { handleResponse(alert.runModal()) }
     }
 
     /// Resolve the handler after saving so Save & Open follows the default that
@@ -511,6 +544,14 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
         alert.addButton(withTitle: "Remove Quarantine & Continue")
         alert.addButton(withTitle: "Cancel")
         guard alert.runModal() == .alertFirstButtonReturn else { return NSError(domain: "BetterOpenWith", code: 3, userInfo: [NSLocalizedDescriptionKey: "Quarantine removal was cancelled."]) }
+        return removeQuarantine(from: url)
+    }
+
+    private func hasQuarantineAttribute(_ url: URL) -> Bool {
+        getxattr(url.path, "com.apple.quarantine", nil, 0, 0, 0) >= 0
+    }
+
+    private func removeQuarantine(from url: URL) -> Error? {
         let result = removexattr(url.path, "com.apple.quarantine", 0)
         if result == 0 || errno == ENOATTR { return nil }
         return NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: [NSLocalizedDescriptionKey: "macOS could not remove the quarantine marker."])
