@@ -1,0 +1,28 @@
+name: Test
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [main, dev]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-13
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: >-
+          xcodebuild
+          -project BetterOpenWith.xcodeproj
+          -scheme BetterOpenWith
+          -configuration Debug
+          -sdk macosx
+          -derivedDataPath "$RUNNER_TEMP/DerivedData"
+          CODE_SIGNING_ALLOWED=NO
+          test

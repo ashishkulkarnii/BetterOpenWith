@@ -50,9 +50,11 @@ enum FileTypeCatalog {
 final class DefaultsProfileStore {
     private let activeProfileKey = "active-defaults-profile-v1"
     private let defaults: UserDefaults
+    private let directory: URL
 
-    init(defaults: UserDefaults = .standard) {
+    init(defaults: UserDefaults = .standard, directory: URL = AppSettings.profilesDirectory) {
         self.defaults = defaults
+        self.directory = directory
         if defaults.string(forKey: activeProfileKey) == nil,
            let legacyProfileID = UserDefaults(suiteName: "io.github.ashishkulkarnii.DefaultAppSelector")?.string(forKey: activeProfileKey) {
             defaults.set(legacyProfileID, forKey: activeProfileKey)
@@ -115,7 +117,7 @@ final class DefaultsProfileStore {
         activate(apple)
     }
 
-    private var profilesFileURL: URL { AppSettings.profilesDirectory.appendingPathComponent("profiles.json") }
+    private var profilesFileURL: URL { directory.appendingPathComponent("profiles.json") }
 
     private func uniqueDefaultName(for requestedName: String) -> String {
         guard requestedName == "Custom Defaults" else { return requestedName }
@@ -127,7 +129,7 @@ final class DefaultsProfileStore {
     }
 
     private func persist(_ profiles: [DefaultsProfile]) {
-        try? FileManager.default.createDirectory(at: AppSettings.profilesDirectory, withIntermediateDirectories: true)
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         try? JSONEncoder().encode(profiles).write(to: profilesFileURL, options: .atomic)
     }
 }

@@ -30,6 +30,14 @@ extension.
 
 ![Choosing whether to open once or change the default](docs/images/finder-choice.png)
 
+### Downloaded files and quarantine
+
+Before opening a downloaded file, Better Open With detects macOS’s quarantine
+marker. It asks whether to remove that marker first, which can prevent the
+misleading “damaged” warning when you trust the file and its source. **No** is
+the default and lets macOS handle the file normally; choose **Yes, Remove
+Quarantine** only for a file you trust.
+
 ### Experimental file-specific defaults
 
 File-specific rules are disabled by default because macOS stores them as
@@ -87,6 +95,18 @@ xcodebuild \
   build
 ```
 
+Run the test suite with:
+
+```sh
+xcodebuild \
+  -project BetterOpenWith.xcodeproj \
+  -scheme BetterOpenWith \
+  -configuration Debug \
+  -sdk macosx \
+  CODE_SIGNING_ALLOWED=NO \
+  test
+```
+
 The app uses AppKit, Finder Sync, and Launch Services. Launch Services changes
 can be briefly cached by Finder and other apps; relaunch Finder using one of
 the methods above before treating a new association as failed.
@@ -103,5 +123,6 @@ by a maintainer.
 - Extension-wide defaults are stored by macOS Launch Services.
 - Experimental file-specific defaults are stored with the file and take
   precedence over the extension-wide default.
+- Download quarantine is only removed after an explicit confirmation.
 - The Finder extension is the supported way to add a Finder contextual-menu
   command. Finder controls where third-party menu sections appear.

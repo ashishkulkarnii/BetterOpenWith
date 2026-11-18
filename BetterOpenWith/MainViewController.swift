@@ -4,6 +4,18 @@ import FinderSync
 import ServiceManagement
 import UniformTypeIdentifiers
 
+enum QuarantineFileAccess {
+    static func hasAttribute(at url: URL) -> Bool {
+        getxattr(url.path, "com.apple.quarantine", nil, 0, 0, 0) >= 0
+    }
+
+    static func remove(from url: URL) -> Error? {
+        let result = removexattr(url.path, "com.apple.quarantine", 0)
+        if result == 0 || errno == ENOATTR { return nil }
+        return NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: [NSLocalizedDescriptionKey: "macOS could not remove the quarantine marker."])
+    }
+}
+
 final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableViewDataSource, NSTableViewDelegate {
     private enum Mode { case file, fileExtension }
     private var store = DefaultsProfileStore()
@@ -483,7 +495,7 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
     }
 
     private func open(file: URL, with application: URL) {
-        if hasQuarantineAttribute(file) {
+        if QuarantineFileAccess.hasAttribute(at: file) {
             askBeforeOpeningQuarantinedFile(file, with: application)
         } else {
             launch(file: file, with: application)
@@ -515,7 +527,7 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
         let handleResponse: (NSApplication.ModalResponse) -> Void = { [weak self] response in
             guard let self else { return }
             if response == .alertSecondButtonReturn {
-                if let error = self.removeQuarantine(from: file) {
+                if let error = QuarantineFileAccess.remove(from: file) {
                     self.status.stringValue = "Couldn’t remove quarantine: \(error.localizedDescription)"
                     return
                 }
@@ -544,17 +556,7 @@ final class MainViewController: NSViewController, NSComboBoxDelegate, NSTableVie
         alert.addButton(withTitle: "Remove Quarantine & Continue")
         alert.addButton(withTitle: "Cancel")
         guard alert.runModal() == .alertFirstButtonReturn else { return NSError(domain: "BetterOpenWith", code: 3, userInfo: [NSLocalizedDescriptionKey: "Quarantine removal was cancelled."]) }
-        return removeQuarantine(from: url)
-    }
-
-    private func hasQuarantineAttribute(_ url: URL) -> Bool {
-        getxattr(url.path, "com.apple.quarantine", nil, 0, 0, 0) >= 0
-    }
-
-    private func removeQuarantine(from url: URL) -> Error? {
-        let result = removexattr(url.path, "com.apple.quarantine", 0)
-        if result == 0 || errno == ENOATTR { return nil }
-        return NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: [NSLocalizedDescriptionKey: "macOS could not remove the quarantine marker."])
+        return QuarantineFileAccess.remove(from: url)
     }
 
     private func apply(_ association: DefaultAssociation, completion: @escaping (Error?) -> Void) {
