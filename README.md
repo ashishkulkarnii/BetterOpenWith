@@ -22,13 +22,16 @@ Right-click a file in Finder, choose **Better Open With**, then select a
 compatible app. The menu shows the installed apps that macOS can use for the
 selected file.
 
-![Better Open With in Finder’s contextual menu](docs/images/finder-menu.png)
-
 Choose **Open Only This Time** to leave the current default unchanged, or
 **For All .ext Files** to make the selected app the system default for that
 extension.
 
-![Choosing whether to open once or change the default](docs/images/finder-choice.png)
+<table>
+  <tr>
+    <td width="60%"><img src="docs/images/finder-menu.png" alt="Better Open With in Finder’s contextual menu"></td>
+    <td width="40%"><img src="docs/images/finder-choice.png" alt="Choosing whether to open once or change the default"></td>
+  </tr>
+</table>
 
 ### Downloaded files and quarantine
 
@@ -37,6 +40,17 @@ marker. It asks whether to remove that marker first, which can prevent the
 misleading “damaged” warning when you trust the file and its source. **No** is
 the default and lets macOS handle the file normally; choose **Yes, Remove
 Quarantine** only for a file you trust.
+
+The macOS warning appears only when the file is opened normally with macOS, or
+when you choose **No** in Better Open With’s request. When you open through
+**Better Open With**, its quarantine request is shown first.
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/images/macos-quarantine-warning.png" alt="macOS warning for a quarantined download"></td>
+    <td width="50%"><img src="docs/images/remove-quarantine.png" alt="Better Open With's remove quarantine request"></td>
+  </tr>
+</table>
 
 ### Experimental file-specific defaults
 
