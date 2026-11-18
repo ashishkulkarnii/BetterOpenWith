@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: macos-14
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build release app
+        run: >-
+          xcodebuild
+          -project BetterOpenWith.xcodeproj
+          -scheme BetterOpenWith
+          -configuration Release
+          -sdk macosx
+          -derivedDataPath "$RUNNER_TEMP/DerivedData"
+          CODE_SIGNING_ALLOWED=NO
+          build
+
+      - name: Package app
+        run: >-
+          ditto -c -k --sequesterRsrc --keepParent
+          "$RUNNER_TEMP/DerivedData/Build/Products/Release/Better Open With.app"
+          "BetterOpenWith-${GITHUB_REF_NAME}.zip"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "$GITHUB_REF_NAME"
+          "BetterOpenWith-${GITHUB_REF_NAME}.zip"
+          --generate-notes
