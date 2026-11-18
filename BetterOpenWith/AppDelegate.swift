@@ -23,6 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        if let icon = bundledAppIcon() { NSApp.applicationIconImage = icon }
         configureMainMenu()
         let controller = MainViewController()
         let window = NSWindow(contentViewController: controller)
@@ -123,11 +124,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openFromMenuBar() { showMainWindow(settings: false) }
 
     private func menuBarIcon() -> NSImage? {
-        guard let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
-              let icon = NSImage(contentsOf: iconURL) else { return nil }
+        guard let icon = bundledAppIcon() else { return nil }
         icon.size = NSSize(width: 18, height: 18)
         icon.isTemplate = false
         icon.accessibilityDescription = AppIdentity.displayName
+        return icon
+    }
+
+    private func bundledAppIcon() -> NSImage? {
+        guard let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+              let icon = NSImage(contentsOf: iconURL) else { return nil }
+        icon.isTemplate = false
         return icon
     }
 
