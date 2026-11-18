@@ -100,8 +100,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppSettings.current.keepRunningInMenuBar {
             if statusItem == nil {
                 let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-                item.button?.image = NSImage(systemSymbolName: "doc.badge.gearshape", accessibilityDescription: AppIdentity.displayName)
-                item.button?.image?.isTemplate = true
+                item.button?.image = NSApp.applicationIconImage
+                item.button?.image?.isTemplate = false
+                item.button?.image?.accessibilityDescription = AppIdentity.displayName
                 let menu = NSMenu()
                 menu.addItem(withTitle: "Open \(AppIdentity.displayName)", action: #selector(openFromMenuBar), keyEquivalent: "")
                 menu.addItem(.separator())

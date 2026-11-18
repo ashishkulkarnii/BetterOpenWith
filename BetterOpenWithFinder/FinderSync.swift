@@ -43,6 +43,9 @@ final class FinderSync: FIFinderSync {
             }
             let item = NSMenuItem(title: title, action: #selector(chooseApplication(_:)), keyEquivalent: "")
             item.target = self
+            let icon = NSWorkspace.shared.icon(forFile: application.path)
+            icon.size = NSSize(width: 16, height: 16)
+            item.image = icon
             item.tag = applicationsForMenuTags.count
             applicationsForMenuTags[item.tag] = bundleIdentifier
             applicationsMenu.addItem(item)
