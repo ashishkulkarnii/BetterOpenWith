@@ -102,6 +102,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             if statusItem == nil {
                 let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
                 item.button?.image = menuBarIcon()
+                item.button?.imageScaling = .scaleProportionallyDown
+                item.button?.imagePosition = .imageOnly
                 let menu = NSMenu()
                 menu.addItem(withTitle: "Open \(AppIdentity.displayName)", action: #selector(openFromMenuBar), keyEquivalent: "")
                 menu.addItem(.separator())
@@ -125,7 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func menuBarIcon() -> NSImage? {
         guard let icon = bundledAppIcon() else { return nil }
-        icon.size = NSSize(width: 18, height: 18)
+        icon.size = NSSize(width: 16, height: 16)
         icon.isTemplate = false
         icon.accessibilityDescription = AppIdentity.displayName
         return icon
