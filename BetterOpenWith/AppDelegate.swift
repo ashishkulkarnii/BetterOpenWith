@@ -100,9 +100,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if AppSettings.current.keepRunningInMenuBar {
             if statusItem == nil {
                 let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
-                item.button?.image = NSApp.applicationIconImage
-                item.button?.image?.isTemplate = false
-                item.button?.image?.accessibilityDescription = AppIdentity.displayName
+                item.button?.image = menuBarIcon()
                 let menu = NSMenu()
                 menu.addItem(withTitle: "Open \(AppIdentity.displayName)", action: #selector(openFromMenuBar), keyEquivalent: "")
                 menu.addItem(.separator())
@@ -123,6 +121,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc private func openFromMenuBar() { showMainWindow(settings: false) }
+
+    private func menuBarIcon() -> NSImage? {
+        guard let iconURL = Bundle.main.url(forResource: "AppIcon", withExtension: "icns"),
+              let icon = NSImage(contentsOf: iconURL) else { return nil }
+        icon.size = NSSize(width: 18, height: 18)
+        icon.isTemplate = false
+        icon.accessibilityDescription = AppIdentity.displayName
+        return icon
+    }
 
     private func showMainWindow(settings: Bool) {
         if settings { mainViewController?.showSettings() }
