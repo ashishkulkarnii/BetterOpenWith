@@ -126,9 +126,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openFromMenuBar() { showMainWindow(settings: false) }
 
     private func menuBarIcon() -> NSImage? {
-        guard let icon = bundledAppIcon() else { return nil }
-        icon.size = NSSize(width: 16, height: 16)
-        icon.isTemplate = false
+        let icon = NSImage(size: NSSize(width: 18, height: 18))
+        icon.lockFocus()
+
+        // Status-bar images are templates: macOS supplies the correct contrast for
+        // both light and dark menu bars. Keep this compact so it has the same visual
+        // weight as the system's own status items.
+        NSColor.black.setFill()
+        let dotDiameter: CGFloat = 3
+        let lineHeight: CGFloat = 2
+        let rowSpacing: CGFloat = 5
+        for row in 0 ..< 3 {
+            let y = 3 + CGFloat(row) * rowSpacing
+            NSBezierPath(ovalIn: NSRect(x: 2, y: y, width: dotDiameter, height: dotDiameter)).fill()
+            NSBezierPath(roundedRect: NSRect(x: 7, y: y + 0.5, width: 9, height: lineHeight), xRadius: 1, yRadius: 1).fill()
+        }
+
+        icon.unlockFocus()
+        icon.isTemplate = true
         icon.accessibilityDescription = AppIdentity.displayName
         return icon
     }
