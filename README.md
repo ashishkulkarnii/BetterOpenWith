@@ -1,4 +1,4 @@
-# Better Open With
+# <img src="BetterOpenWith/Assets.xcassets/AppIcon.appiconset/icon_32x32@2x.png" width="32" height="32" alt=""> Better Open With
 
 Better Open With is a small macOS utility for changing the default app for a
 file type. Pick an extension, choose an installed compatible app, and apply
