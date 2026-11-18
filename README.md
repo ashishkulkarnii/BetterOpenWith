@@ -16,6 +16,20 @@ leaving Finder.
   .ext Files** choices.
 - Can keep running from the menu bar after its window is closed.
 
+## Finder workflow
+
+Right-click a file in Finder, choose **Better Open With**, then select a
+compatible app. The menu shows the installed apps that macOS can use for the
+selected file.
+
+![Better Open With in Finder’s contextual menu](docs/images/finder-menu.png)
+
+Choose **Open Only This Time** to leave the current default unchanged, or
+**For All .ext Files** to make the selected app the system default for that
+extension.
+
+![Choosing whether to open once or change the default](docs/images/finder-choice.png)
+
 ### Experimental file-specific defaults
 
 File-specific rules are disabled by default because macOS stores them as
